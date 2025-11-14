@@ -1,4 +1,4 @@
-## one wire code
+## one wire example
 ## https://docs.micropython.org/en/latest/esp8266/tutorial/onewire.html
 
 from machine import Pin, I2C
@@ -7,7 +7,7 @@ import onewire, ds18x20
 
 ow_pin = Pin(12)
 
-#onewire object creation
+#onewire object
 sensor = ds18x20.DS18X20(onewire.OneWire(ow_pin))
 
 while (True):
