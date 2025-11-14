@@ -15,7 +15,7 @@ while (True):
     sensor.convert_temp()
     sleep(.750)
 
-    print()
+    print(sensor.read_temp, end=' ')
 
     sleep(2)
 
