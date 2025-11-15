@@ -6,16 +6,27 @@ from time import sleep
 import onewire, ds18x20
 
 ow_pin = Pin(12)
-
+led = Pin("LED", Pin.OUT)
 #onewire object
 sensor = ds18x20.DS18X20(onewire.OneWire(ow_pin))
 
+roms = sensor.scan()
+rec_temp = 0
+
 while (True):
-    print('temperatures:', end=' ')
+    
     sensor.convert_temp()
     sleep(.750)
-
-    print(sensor.read_temp, end=' ')
-
-    sleep(2)
+    
+    for rom in roms:
+        led.toggle()
+        temp_f = (sensor.read_temp(rom) * 1.8) + 32
+        
+        if temp_f != rec_temp:
+            print('temperatures:', end=' ')
+            print("{:.1f}".format(temp_f), end=' ')
+            print()
+        
+        rec_temp = temp_f
+        led.toggle()
 
