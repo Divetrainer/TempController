@@ -26,12 +26,12 @@ probe_sensor_oled.contrast(0)
 roms = sensor.scan()
 sensor_recorded_temp = 0
 
-#TODO
-# add proper catch to turn off lights/screens when interupted
+#TODO adjust area here for more control with buttons?
+
 while (True):
 
     sensor.convert_temp()
-    sleep(.750)
+    sleep(1)
     for rom in roms:
         led.toggle()
         temp_f = (sensor.read_temp(rom) * 1.8) + 32
