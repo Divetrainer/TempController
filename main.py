@@ -38,12 +38,9 @@ empty_battery = 3.0
 
 
 #TODO adjust area here for more control with buttons?
-screen_change = 0
+
 
 while (True):
-	#change displays 5 sec temp 2 sec battery
-	if screen_change >= 7:
-		screen_change = 0
 	#temperature read and display on screen
     sensor.convert_temp()
 
@@ -59,19 +56,5 @@ while (True):
 
         sensor_recorded_temp = temp_f
 
-	#battery read and display on screen
-	voltage = vsys.read_u16() * conversion_factor
-	percentage = 100 * ((voltage - empty_battery) / (full_battery - empty_battery))
-	if screen_change >= 5 and charging.value() == 0:
-		probe_sensor_oled.fill(0)
-		probe_sensor_oled.text('Battery Percentage:', 0,0)
-		probe_sensor_oled.text("{:.2f}".format(percentage), 0,20)
-		probe_sensor_oled.show()
-	if screen_change >= 5 and charging.value() == 1:
-		probe_sensor.oled.fill(0)
-		probe_sensor.oled.text('Battery Percentage:', 0,0)
-		probe_sensor.oled.text()
-		probe_sensor_oled.show()
-	screen_change += 1
 	sleep(1)
 	led.toggle()
