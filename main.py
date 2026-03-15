@@ -5,7 +5,6 @@ from time import sleep
 import onewire, ds18x20 #probe sensor library
 from ssd1306 import SSD1306_I2C #screen management
 
-led = Pin("LED", Pin.OUT)
 
 #probe temp sensor
 ow_pin = Pin(12)
@@ -26,10 +25,12 @@ probe_sensor_oled.contrast(0)
 roms = sensor.scan()
 sensor_recorded_temp = 0
 
-#battery percentage
-vsys = ADC(Pin(29))
+#battery percentage, need to create wifi pin to allow for vsys pull on pico w
+wifi_pin = Pin(25, mode=Pin.OUT, value=1)
+sleep(.1)
+vsys = ADC(29)
 charging = Pin(24, Pin.IN)
-conversion_factor = 3 * 3.3 / 65535
+conversion_factor = 3.3 / 65535
 
 #charging cutoff voltage
 full_battery = 4.2
@@ -38,14 +39,20 @@ empty_battery = 3.0
 
 
 #TODO adjust area here for more control with buttons?
-
+screen_change = 0
+timer = 0
 
 while (True):
-	#temperature read and display on screen
+	#read values on start
     sensor.convert_temp()
+	voltage = vsys.read_u16() * conversion_factor * 3
+	percentage = 100 * ((voltage - empty_battery) / (full_battery - empty_battery))
 
+	if percentage > 100:
+		percentage = 100
+
+	#temperature read and display
     for rom in roms:
-        led.toggle()
         temp_f = (sensor.read_temp(rom) * 1.8) + 32
 
         if temp_f != sensor_recorded_temp:
@@ -55,6 +62,20 @@ while (True):
             probe_sensor_oled.show()
 
         sensor_recorded_temp = temp_f
+		screen_change += 1
+		sleep(.5)
 
-	sleep(1)
-	led.toggle()
+	#Battery percentage display
+	if percentage > 75:
+		timer = 120
+	elif percentage < 25:
+		timer = 30
+
+	if screen_change == timer:
+		probe_sensor_oled.fill(0)
+		probe_sensor_oled.text('Battery Level:',0,0)
+		probe_sensor_oled.text(f'{"{:.1f}".format(percentage)}%',0,20)
+		probe_sensor_oled.show()
+
+		sleep(5)
+		screen_change = 0
